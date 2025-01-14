@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quran Query</title>
+</head>
+<body>
+  <h1>Ask a Question from the Quran</h1>
+  <form id="questionForm">
+    <label for="question">Your Question:</label>
+    <input type="text" id="question" name="question" required>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>Answer:</h3>
+  <p id="answer"></p>
+
+  <script>
+    // Function to submit the question to the backend
+    document.getElementById("questionForm").addEventListener("submit", async (event) => {
+      event.preventDefault(); // Prevent the form from submitting normally
+
+      const question = document.getElementById("question").value;
+      if (!question) {
+        alert("Please enter a question.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question }),
+        });
+
+        const data = await response.json();
+
+        console.log(data.kwargs.content);
+        
+        if (data.kwargs.content) {
+          document.getElementById("answer").innerText = data.kwargs.content.toString();
+        } else {
+          document.getElementById("answer").innerText = "Sorry, I couldn't find an answer.";
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while processing your request.");
+      }
+    });
+  </script>
+</body>
+</html>
