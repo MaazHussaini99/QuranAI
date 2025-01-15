@@ -8,7 +8,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 dotenv.config();
 
 // Read the Quran text file
-const quranText = readFileSync("quran.txt", "utf-8");
+const quranText = readFileSync("quran-original.txt", "utf-8");
 
 async function storeEmbeddings() {
   try {

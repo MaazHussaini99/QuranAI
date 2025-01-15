@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quran Query</title>
 </head>
+
 <body>
   <h1>Ask a Question from the Quran</h1>
   <form id="questionForm">
@@ -17,9 +19,16 @@
   <p id="answer"></p>
 
   <script>
-    // Function to submit the question to the backend
+    let sessionId = localStorage.getItem("sessionId");
+
+    // Generate a unique session ID if not already present
+    if (!sessionId) {
+      sessionId = Date.now().toString(); // Simple session ID based on timestamp
+      localStorage.setItem("sessionId", sessionId);
+    }
+
     document.getElementById("questionForm").addEventListener("submit", async (event) => {
-      event.preventDefault(); // Prevent the form from submitting normally
+      event.preventDefault();
 
       const question = document.getElementById("question").value;
       if (!question) {
@@ -33,9 +42,8 @@
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ question }),
+          body: JSON.stringify({ sessionId, question }),
         });
-
         const data = await response.json();
 
         console.log(data.kwargs.content);
@@ -50,6 +58,8 @@
         alert("An error occurred while processing your request.");
       }
     });
+
   </script>
 </body>
+
 </html>
