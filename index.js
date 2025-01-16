@@ -88,7 +88,7 @@ app.post("/ask", async (req, res) => {
 
     // Add the user's question to the chat history
     chatHistory[sessionId].push({ role: "user", content: question });
-    console.log('batman', chatHistory);
+    
     
     // Use the chain to process the user's question
     const response = await qaChain.invoke({
