@@ -43,25 +43,34 @@ const llmRunnable = new RunnableLambda({
   func: async (input) => {
     console.log("Input to LLM:", input); // Debugging
 
+    const { documents, query, chat_history } = input;
+
     // If history is empty, prepend the context for the first query
-    const isFirstQuestion = input.chat_history.length === 0;
+    const isFirstQuestion = chat_history.length === 0;
+
+    // Format retrieved documents
+    const formattedDocuments = documents
+      .map((doc, index) => `Document ${index + 1}:\n${doc.pageContent}`)
+      .join("\n\n");
+
     let questionWithContext;
 
     if (isFirstQuestion) {
-      questionWithContext = `You are answering a question about the Quran. Please provide an insightful and context-aware response.\n\nUser: ${input.query}\nAssistant:`;
+      questionWithContext = `You are an expert in the Quran. Use the following context to answer the user's question:\n\n${formattedDocuments}\n\nUser: ${query}\nAssistant:`;
     } else {
       // Format the chat history for subsequent questions
-      const formattedHistory = input.chat_history
+      const formattedHistory = chat_history
         .map((message) => `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`)
         .join("\n");
 
-      questionWithContext = `${formattedHistory}\n\nUser: ${input.query}\nAssistant:`;
+      questionWithContext = `${formattedHistory}\n\nContext:\n${formattedDocuments}\n\nUser: ${query}\nAssistant:`;
     }
 
     const response = await llm.invoke(questionWithContext);
     return response; // Return the trimmed response
   },
 });
+
 
 
 // Define a query-answering chain
@@ -86,8 +95,7 @@ app.post("/ask", async (req, res) => {
       chatHistory[sessionId] = [];
     }
 
-    // Add the user's question to the chat history
-    chatHistory[sessionId].push({ role: "user", content: question });
+
     
     
     // Use the chain to process the user's question
@@ -95,6 +103,9 @@ app.post("/ask", async (req, res) => {
       query: question,
       chat_history: chatHistory[sessionId],
     });
+
+        // Add the user's question to the chat history
+        chatHistory[sessionId].push({ role: "user", content: question });
 
     // Save the assistant's response to the chat history
     chatHistory[sessionId].push({ role: "assistant", content: response.content });
