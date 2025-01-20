@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { RunnableLambda } from "@langchain/core/runnables";
 
+
+//URL; to load the web/framew docs in MD format in to vector stores/Chroma
+// https://python.langchain.com/docs/integrations/document_loaders/
+
+
 dotenv.config();
 
 const app = express();
@@ -63,7 +68,7 @@ const llmRunnable = new RunnableLambda({
         .map((message) => `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`)
         .join("\n");
 
-      questionWithContext = `${formattedHistory}\n\nContext:\n${formattedDocuments}\n\nUser: ${query}\nAssistant:`;
+      questionWithContext = `${formattedHistory}\n\nContext:\n${formattedDocuments}\n\nUser: Answer the follwoiung question in reegards to the history and the context provided (and do not mention "Based on the provided context"): ${query}\nAssistant:`;
     }
 
     const response = await llm.invoke(questionWithContext);
